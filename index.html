@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="my">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Love Number Guesser 🔢❤️</title>
+    <!-- Confetti Library -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div class="card">
+        <h1>🔢 ခန့်မှန်းကြည့်ရအောင် 🫶</h1>
+
+        <!-- Stats Board -->
+        <div class="stats-container">
+            <div class="stats-box">
+                <span>ဆော့ခဲ့သည့်ပွဲ</span>
+                <span id="totalGames">0</span>
+            </div>
+            <div class="stats-box">
+                <span>အကောင်းဆုံးစံချိန်</span>
+                <span id="bestScore">-</span>
+            </div>
+            <div class="stats-box">
+                <span>ယခုအကြိမ်ရေ</span>
+                <span id="currentAttempts">0</span>
+            </div>
+        </div>
+
+        <!-- Phase 1: Setup Range -->
+        <div id="setupSection">
+            <p style="margin-bottom: 15px; color: #555; font-size: 14px;">
+                ကိုယ်ကြိုက်တဲ့ ဂဏန်းအစ နဲ့ အဆုံး (Range) ကို အရင်သတ်မှတ်ပေးပါ...
+            </p>
+            <div class="range-inputs">
+                <div class="input-group" style="flex: 1;">
+                    <label>အစ (Min)</label>
+                    <input type="number" id="minVal" value="1">
+                </div>
+                <div class="input-group" style="flex: 1;">
+                    <label>အဆုံး (Max)</label>
+                    <input type="number" id="maxVal" value="100">
+                </div>
+            </div>
+            <button class="btn" onclick="startGame()">ဂိမ်းစမည် 🚀</button>
+        </div>
+
+        <!-- Phase 2: Gameplay -->
+        <div id="gameSection">
+            <p style="margin-bottom: 15px; color: #d63031; font-weight: bold;">
+                <span id="displayMin">1</span> မှ <span id="displayMax">100</span> ကြား ဂဏန်းတစ်ခုကို ခန့်မှန်းပါ!
+            </p>
+            <div class="input-group">
+                <input type="number" id="guessVal" placeholder="ဂဏန်းရိုက်ထည့်ပါ..." onkeypress="handleEnter(event)">
+            </div>
+            <button class="btn" onclick="checkGuess()">ခန့်မှန်းမည် 🎯</button>
+            <div class="feedback" id="feedbackText"></div>
+            <button class="btn" style="background: #b2bec3; margin-top: 15px;" onclick="resetSetup()">နောက်ဆုတ်မည် 🔄</button>
+        </div>
+    </div>
+
+    <!-- Win Modal -->
+    <div class="modal-overlay" id="winModal">
+        <div class="modal-card">
+            <h2>🎉 ဂုဏ်ယူပါတယ်! မှန်သွားပါပြီ!</h2>
+            <p id="winMessage">အကြိမ်ရေ (x) ကြိမ်နဲ့ မှန်အောင် ခန့်မှန်းနိုင်ခဲ့ပါတယ်။ အရမ်းတော်တာပဲ 🫶</p>
+            <button class="btn" onclick="playAgain()">နောက်တစ်ခါ ထပ်ဆော့မည်</button>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
