@@ -4,6 +4,9 @@ let attempts = 0;
 let minRange = 1;
 let maxRange = 100;
 
+// ပွဲတစ်ပွဲမှာ ခန့်မှန်းလိုက်တဲ့ ဂဏန်းတွေ သိမ်းထားမယ်
+let guessHistory = [];
+
 // LocalStorage မှ Stats များ ဆွဲထုတ်ခြင်း
 let stats = JSON.parse(localStorage.getItem('guessGameStats')) || { totalGames: 0, bestScore: null };
 
@@ -23,7 +26,9 @@ function startGame() {
     // Random ဂဏန်းထုတ်ခြင်း
     targetNumber = Math.floor(Math.random() * (maxRange - minRange + 1)) + minRange;
     attempts = 0;
+    guessHistory = [];
     updateStatsUI();
+    renderGuessHistory();
 
     // UI ပြောင်းခြင်း
     document.getElementById('displayMin').innerText = minRange;
@@ -55,18 +60,27 @@ function checkGuess() {
     attempts++;
     updateStatsUI();
 
+    let resultClass = '';
+
     if (guess > targetNumber) {
         feedbackText.innerText = "နည်းနည်း ကြီးနေပါတယ်... ထပ်လျော့ကြည့်ပါဦး 📉";
         feedbackText.style.color = "#d63031";
         shakeFeedback();
+        resultClass = 'too-high';
     } else if (guess < targetNumber) {
         feedbackText.innerText = "နည်းနည်း ငယ်နေပါတယ်... ထပ်တိုးကြည့်ပါဦး 📈";
         feedbackText.style.color = "#0984e3";
         shakeFeedback();
+        resultClass = 'too-low';
     } else {
         // အဖြေမှန်သွားသောအခါ
+        resultClass = 'correct';
         handleWin();
     }
+
+    // ခန့်မှန်းထားတဲ့ ဂဏန်းကို history ထဲ ထည့်ပြီး ပြသခြင်း
+    guessHistory.push({ value: guess, cls: resultClass });
+    renderGuessHistory();
 
     guessInput.value = '';
     guessInput.focus();
@@ -86,7 +100,7 @@ function handleWin() {
     updateStatsUI();
 
     // Modal ပြခြင်း
-    document.getElementById('winMessage').innerHTML = `<strong>${attempts}</strong> ကြိမ်တည်းနဲ့ မှန်အောင် ခန့်မှန်းနိုင်ခဲ့ပါတယ်။ တော်လိုက်တာ အချစ်ရယ် 😘`;
+    document.getElementById('winMessage').innerHTML = `<strong>${attempts}</strong> ကြိမ်တည်းနဲ့ မှန်အောင် ခန့်မှန်းနိုင်ခဲ့ပါတယ်။ တော်လိုက်တာ 😘`;
     document.getElementById('winModal').classList.add('active');
 
     // Confetti ပန်းပွင့်များ
@@ -107,6 +121,29 @@ function shakeFeedback() {
     void fb.offsetWidth; // trigger reflow
     fb.classList.add('shake');
 }
+// ခန့်မှန်းခဲ့သော ဂဏန်းများကို ပြန်ပြခြင်း
+function renderGuessHistory() {
+    const list = document.getElementById('guessHistoryList');
+
+    if (guessHistory.length === 0) {
+        list.innerHTML = '<span class="history-empty">ဂဏန်းတွေ ခန့်မှန်းလိုက်တာတွေ ဒီမှာ ပေါ်လာမှာပါ 👇</span>';
+        return;
+    }
+
+    list.innerHTML = '';
+    guessHistory.forEach(function (item, index) {
+        const el = document.createElement('span');
+        el.className = 'history-item ' + item.cls;
+        el.textContent = (index + 1) + '. ' + item.value;
+        list.appendChild(el);
+    });
+
+    // အောက်ဆုံးကို အလိုအလျောက် scroll
+    const container = document.getElementById('historyContainer');
+    if (container) {
+        container.scrollTop = container.scrollHeight;
+    }
+}
 
 // Stats UI အမြဲတမ်း Update လုပ်ပေးရန်
 function updateStatsUI() {
@@ -126,5 +163,7 @@ function resetSetup() {
     document.getElementById('setupSection').style.display = 'block';
     document.getElementById('gameSection').style.display = 'none';
     attempts = 0;
+    guessHistory = [];
+    renderGuessHistory();
     updateStatsUI();
 }

@@ -18,10 +18,10 @@ body {
 .card {
     background: white;
     width: 100%;
-    max-width: 400px;
-    padding: 30px;
-    border-radius: 20px;
-    box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+    max-width: 640px;
+    padding: 45px 40px;
+    border-radius: 24px;
+    box-shadow: 0 12px 30px rgba(0,0,0,0.12);
     text-align: center;
 }
 
@@ -36,9 +36,9 @@ h1 {
     display: flex;
     justify-content: space-between;
     background: #ffeaa7;
-    padding: 15px;
-    border-radius: 12px;
-    margin-bottom: 20px;
+    padding: 20px;
+    border-radius: 14px;
+    margin-bottom: 24px;
     font-size: 14px;
     color: #2d3436;
     font-weight: bold;
@@ -52,12 +52,12 @@ h1 {
 .stats-box span:last-child {
     color: #d63031;
     font-size: 18px;
-    margin-top: 5px;
+    margin-top: 6px;
 }
 
 /* Input Fields */
 .input-group {
-    margin-bottom: 15px;
+    margin-bottom: 18px;
     text-align: left;
 }
 
@@ -71,14 +71,14 @@ h1 {
 
 .range-inputs {
     display: flex;
-    gap: 10px;
+    gap: 12px;
 }
 
 input[type="number"] {
     width: 100%;
-    padding: 12px;
+    padding: 18px;
     border: 2px solid #fdcb6e;
-    border-radius: 10px;
+    border-radius: 12px;
     font-size: 16px;
     outline: none;
     transition: 0.3s;
@@ -93,14 +93,14 @@ input[type="number"]:focus {
     background: #ff7675;
     color: white;
     border: none;
-    padding: 14px 20px;
+    padding: 18px 20px;
     width: 100%;
     font-size: 16px;
     font-weight: bold;
-    border-radius: 12px;
+    border-radius: 14px;
     cursor: pointer;
     transition: 0.3s;
-    margin-top: 10px;
+    margin-top: 12px;
 }
 
 .btn:hover {
@@ -133,6 +133,50 @@ input[type="number"]:focus {
     100% { transform: translateX(0); }
 }
 
+/* Guess History */
+.history-container {
+    margin-top: 18px;
+    text-align: left;
+    background: #fdf3f8;
+    border-radius: 14px;
+    padding: 16px;
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+.history-title {
+    font-weight: bold;
+    font-size: 14px;
+    color: #2d3436;
+    margin-bottom: 12px;
+}
+
+.history-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.history-empty {
+    font-size: 14px;
+    color: #999;
+}
+
+.history-item {
+    display: inline-flex;
+    align-items: center;
+    background: white;
+    border-radius: 8px;
+    padding: 7px 12px;
+    font-size: 14px;
+    font-weight: bold;
+    border-left: 4px solid #ff7675;
+}
+
+.history-item.too-high { border-left-color: #d63031; color: #d63031; }
+.history-item.too-low  { border-left-color: #0984e3; color: #0984e3; }
+.history-item.correct  { border-left-color: #27ae60; color: #27ae60; background: #eafaf1; }
+
 /* Modal */
 .modal-overlay {
     position: fixed;
@@ -159,3 +203,41 @@ input[type="number"]:focus {
 
 .modal-card h2 { color: #d63031; margin-bottom: 10px; }
 .modal-card p { margin-bottom: 20px; line-height: 1.6; }
+
+/* ===== Mobile Responsive ===== */
+@media (max-width: 560px) {
+    body {
+        padding: 12px;
+    }
+
+    .card {
+        padding: 28px 20px;
+        border-radius: 18px;
+    }
+
+    .stats-container {
+        padding: 14px;
+        font-size: 13px;
+    }
+
+    .stats-box span:last-child {
+        font-size: 16px;
+    }
+}
+
+@media (max-width: 400px) {
+    .card {
+        padding: 22px 16px;
+    }
+
+    .range-inputs {
+        gap: 8px;
+    }
+
+    .stats-container {
+        flex-direction: column;
+        gap: 12px;
+        align-items: center;
+        text-align: center;
+    }
+}
