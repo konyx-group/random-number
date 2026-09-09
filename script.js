@@ -53,15 +53,15 @@ function startGame() {
         return;
     }
 
-    // အဆုံးဂဏန်းသည် 50 အောက် ငယ်လို့မရ
-    if (maxParsed < 50) {
-        showSetupError("အဆုံးဂဏန်းသည် 50 ထက်ငယ်လို့မရပါ။ (အနည်းဆုံး 50 ထားပါ)");
-        return;
-    }
-
     // အစသည် အဆုံးထက် ငယ်ရမည်
     if (minParsed >= maxParsed) {
         showSetupError("အစဂဏန်းသည် အဆုံးဂဏန်းထက် ငယ်ရပါမည်။");
+        return;
+    }
+
+    // Range နှစ်ခု ကြားက ခြားနားမှုသည် အနည်းဆုံး 48 ရှိရမည်
+    if (((maxParsed - minParsed)-1) < 48) {
+        showSetupError("အစဂဏန်းနှင့် အဆုံးဂဏန်းကြားက ခြားနားမှုသည် အနည်းဆုံး 48 ရှိရမည်။");
         return;
     }
 
