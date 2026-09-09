@@ -27,6 +27,10 @@
                 <span>ယခုအကြိမ်ရေ</span>
                 <span id="currentAttempts">0</span>
             </div>
+            <div class="stats-box">
+                <span>စုစုပေါင်း ရမှတ်</span>
+                <span id="totalScore">0</span>
+            </div>
         </div>
 
         <!-- Phase 1: Setup Range -->
@@ -68,8 +72,24 @@
             <div class="input-group">
                 <input type="number" id="guessVal" placeholder="ဂဏန်းရိုက်ထည့်ပါ..." step="1" onkeypress="handleEnter(event)">
             </div>
-            <button class="btn" onclick="checkGuess()">ခန့်မှန်းမည် 🎯</button>
+            <div class="game-status">
+                <div class="status-line">
+                    <span>🕵️ ဖြတ်ထားသော နယ်:</span>
+                    <span id="possibleRange">1 – 100</span>
+                </div>
+                <div class="status-line">
+                    <span>⏳ အလက်ရှိ အကြိမ်ရေ:</span>
+                    <span id="guessesLeft">—</span>
+                </div>
+            </div>
+
+            <div class="action-row">
+                <button type="button" class="btn small-btn" id="hintBtn" onclick="giveHint()">💡 အအကြံပြု (x3)</button>
+            </div>
+
+            <button class="btn" id="guessBtn" onclick="checkGuess()">ခန့်မှန်းမည် 🎯</button>
             <div class="feedback" id="feedbackText"></div>
+            <!-- <p class="kbd-hint">⌨️ အကြံပြု = <kbd>H</kbd> · နောက်ဆုတ် = <kbd>R</kbd> · ထပ်အသွားမည် = <kbd>Enter</kbd></p> -->
 
             <!-- Guess History -->
             <div class="history-container" id="historyContainer">
@@ -87,6 +107,15 @@
             <h2>🎉 ဂုဏ်ယူပါတယ်! မှန်သွားပါပြီ!</h2>
             <p id="winMessage">အကြိမ်ရေ (x) ကြိမ်နဲ့ မှန်အောင် ခန့်မှန်းနိုင်ခဲ့ပါတယ်။ အရမ်းတော်တာပဲ 🫶</p>
             <button class="btn" onclick="playAgain()">နောက်တစ်ခါ ထပ်ဆော့မည်</button>
+        </div>
+    </div>
+
+    <!-- Game Over Modal -->
+    <div class="modal-overlay" id="gameOverModal">
+        <div class="modal-card">
+            <h2>😵 ရှုံးသွားပါပြီ!</h2>
+            <p id="gameOverMessage">မှန်တဲ့ ဂဏန်းက X ဖြစ်ခဲ့ပါတယ်။ နောက်တစ်ခါ ထပ်ကြိုးစားပါဦး 💪</p>
+            <button class="btn" onclick="playAgain()">နောက်တစ်ခါ ကြိုးစားမည်</button>
         </div>
     </div>
 

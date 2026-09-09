@@ -4,6 +4,14 @@ let attempts = 0;
 let minRange = 1;
 let maxRange = 100;
 
+// A1: အကြိမ်ရေ ကန့်သတ်ချက်
+let maxGuesses = 9;
+// C4: ခန့်မှန်းချို့အအောက် ဖြတ်ထားသော နယ် (possible range)
+let lowPossible = 1;
+let highPossible = 100;
+// A2: အကျန်ရှိသော အကြံပြု (hint) အကြိမ်ရေ
+let hintsLeft = 3;
+
 // ဂဏန်းကို ၃ လုံးတစ်ချက် ကော်မာ (,) ခွဲပြီး ပြသရန်
 // ဉပမာ: 1000 -> 1,000, 1000000 -> 1,000,000
 function formatNumber(value) {
@@ -14,7 +22,8 @@ function formatNumber(value) {
 let guessHistory = [];
 
 // LocalStorage မှ Stats များ ဆွဲထုတ်ခြင်း
-let stats = JSON.parse(localStorage.getItem('guessGameStats')) || { totalGames: 0, bestScore: null };
+let stats = JSON.parse(localStorage.getItem('guessGameStats')) || { totalGames: 0, bestScore: null, totalScore: 0 };
+if (typeof stats.totalScore !== 'number') stats.totalScore = 0;
 
 // အစပိုင်းတွင် Stats ပြသရန်
 updateStatsUI();
@@ -71,12 +80,29 @@ function startGame() {
     minRange = minParsed;
     maxRange = maxParsed;
 
+    // A1: Range အကြီးအသိမ် အလက်အကြိမ်ရေ ကန့်သတ်ချက် တွက်ခြင်း
+    const rangeSize = maxRange - minRange + 1;
+    maxGuesses = Math.ceil(Math.log2(rangeSize)) + 2;
+
+    // C4: ဖြတ်ထားသော နယ်ကို အလိုက်အလိုက် reset
+    lowPossible = minRange;
+    highPossible = maxRange;
+
+    // A2: အကြံပြု အကြိမ်ရေ reset
+    hintsLeft = 3;
+
     // Random ဂဏန်းထုတ်ခြင်း
     targetNumber = Math.floor(Math.random() * (maxRange - minRange + 1)) + minRange;
     attempts = 0;
     guessHistory = [];
     updateStatsUI();
+    updateGameHUD();
     renderGuessHistory();
+
+    // Hint button ပြန်ဖွင့်ခြင်း
+    document.getElementById('hintBtn').disabled = false;
+    document.getElementById('hintBtn').innerHTML = '💡 အအကြံပြု (x3)';
+    document.getElementById('hintBtn').style.opacity = '1';
 
     // UI ပြောင်းခြင်း
     document.getElementById('displayMin').innerText = formatNumber(minRange);
@@ -115,7 +141,7 @@ function checkGuess() {
     }
 
 // ဂဏန်းသည် သတ်မှတ်ထားသော Range ထဲမှာသာ ရှိရမည်
-    if (guess < minRange || guess > maxRange) {
+    if (guess <= minRange || guess >= maxRange) {
         feedbackText.innerText = "ဂဏန်းက " + formatNumber(minRange) + " ကနေ " + formatNumber(maxRange) + " ကြားမှာသာ ထည့်လို့ရပါတယ် 🙅";
         feedbackText.style.color = "#d63031";
         shakeFeedback();
@@ -127,11 +153,15 @@ function checkGuess() {
     let resultClass = '';
 
     if (guess > targetNumber) {
+        // C4: 'ကြီးလွန်း' → ဖြတ်ထားသော နယ် အမြင့်ကို လျော့ပြီး binary-search အတိုင်း ပြတင်း
+        highPossible = guess - 1;
         feedbackText.innerText = "နည်းနည်း ကြီးနေပါတယ်... ထပ်လျော့ကြည့်ပါဦး 📉";
         feedbackText.style.color = "#d63031";
         shakeFeedback();
         resultClass = 'too-high';
     } else if (guess < targetNumber) {
+        // C4: 'ငယ်လွန်း' → ဖြတ်ထားသော နယ် အနိမ့်ကို တိုးပြီး binary-search အတိုင်း ပြတင်း
+        lowPossible = guess + 1;
         feedbackText.innerText = "နည်းနည်း ငယ်နေပါတယ်... ထပ်တိုးကြည့်ပါဦး 📈";
         feedbackText.style.color = "#0984e3";
         shakeFeedback();
@@ -142,12 +172,21 @@ function checkGuess() {
         handleWin();
     }
 
+    // A1: အကြိမ်ရေ ကုန်သွားရင် Game Over
+    if (resultClass !== 'correct' && attempts >= maxGuesses) {
+        handleGameOver();
+    }
+
+    updateGameHUD();
+
     // ခန့်မှန်းထားတဲ့ ဂဏန်းကို history ထဲ ထည့်ပြီး ပြသခြင်း
     guessHistory.push({ value: guess, cls: resultClass });
     renderGuessHistory();
+    if (resultClass !== 'correct') {
+        guessInput.focus();
+    }
 
     guessInput.value = '';
-    guessInput.focus();
 }
 
 // 3. အဖြေမှန်သွားသောအခါ
@@ -159,12 +198,17 @@ function handleWin() {
         stats.bestScore = attempts;
     }
 
+    // A3: အရတ်စန္တ (Score) တွက်ပြီး အစုစုပေါင်း ထည့်ခြင်း
+    const scoreGained = calculateScore();
+    stats.totalScore += scoreGained;
+
     // LocalStorage သိမ်းခြင်း
     localStorage.setItem('guessGameStats', JSON.stringify(stats));
     updateStatsUI();
 
     // Modal ပြခြင်း
-    document.getElementById('winMessage').innerHTML = `<strong>${formatNumber(attempts)}</strong> ကြိမ်တည်းနဲ့ မှန်အောင် ခန့်မှန်းနိုင်ခဲ့ပါတယ်။ တော်လိုက်တာ 😘`;
+    document.getElementById('winMessage').innerHTML =
+        `<strong>${formatNumber(attempts)}</strong> ကြိမ်တည်းနဲ့ မှန်အောင် ခန့်မှန်းနိုင်ခဲ့ပါတယ်။ တော်လိုက်တာ 😘<br>✨ +<strong>${formatNumber(scoreGained)}</strong> အဂိုး ရရှိခဲ့ပါတယ်!`;
     document.getElementById('winModal').classList.add('active');
 
     // Confetti ပန်းပွင့်များ
@@ -176,6 +220,89 @@ function handleEnter(event) {
     if (event.key === 'Enter') {
         checkGuess();
     }
+}
+
+// B2: အကီးဘုဒ် အချစား (Keyboard shortcut)
+// H = အကြံပြု, R = နောက်ဆုတ်  (input ထဲမှာ ရိုက်နေချိန်မှာ မဖြစ်စေရန်)
+function handleGlobalKey(e) {
+    const inGame = document.getElementById('gameSection').style.display === 'block';
+    if (!inGame) return;
+    const focusedInput = document.activeElement && document.activeElement.tagName === 'INPUT';
+    if (focusedInput) return;
+
+    if (e.key === 'h' || e.key === 'H') {
+        giveHint();
+    } else if (e.key === 'r' || e.key === 'R') {
+        resetSetup();
+    }
+}
+document.addEventListener('keydown', handleGlobalKey);
+
+// A1: Range အကြီးအသိမ် အလက်အကြိမ်ရေ ကန့်သတ်ချက်
+function calculateMaxGuesses() {
+    const rangeSize = maxRange - minRange + 1;
+    maxGuesses = Math.ceil(Math.log2(rangeSize)) + 2;
+}
+
+// A3: အရတ်စန္တ (Score) တွက်ခြင်း — အကြိမ်ရေ အနညင့်လေ, အခဲတဲ့ level ဖြစ်လေ အဂိုး အမြင့်လေ
+function calculateScore() {
+    const rangeSize = maxRange - minRange + 1;
+    let multiplier = 1;
+    if (rangeSize > 100000) multiplier = 5;
+    else if (rangeSize > 10000) multiplier = 4;
+    else if (rangeSize > 1000) multiplier = 3;
+    else if (rangeSize > 100) multiplier = 2;
+    const base = Math.max(1, maxGuesses - attempts + 1);
+    return base * multiplier;
+}
+
+// C4 + A1: HUD (ဖြတ်ထားသော နယ် / အလက Spencer အကြိမ်ရေ) update
+function updateGameHUD() {
+    document.getElementById('possibleRange').innerText =
+        formatNumber(lowPossible) + ' – ' + formatNumber(highPossible);
+    const left = Math.max(0, maxGuesses - attempts);
+    const el = document.getElementById('guessesLeft');
+    el.innerText = formatNumber(left);
+    el.style.color = left <= 2 ? '#d63031' : '#0984e3';
+}
+
+// A2: အကြံပြု (Hint) — ဖြတ်ထားသော နယ်ကို အဝက်အတောင်းအလောက် လျော့ပြီး target အနီးကို ညွှန်ပေးသည်
+function giveHint() {
+    if (document.getElementById('gameSection').style.display !== 'block') return;
+    if (hintsLeft <= 0) {
+        document.getElementById('feedbackText').innerText = "အကြံပြု အကုန်သွားပါပြီ 🙅";
+        shakeFeedback();
+        return;
+    }
+    if (targetNumber === 0) return; // game မစသေးချိန်
+
+    hintsLeft--;
+    const mid = Math.floor((lowPossible + highPossible) / 2);
+    const fb = document.getElementById('feedbackText');
+
+    if (targetNumber <= mid) {
+        highPossible = mid;
+        fb.innerText = "💡 ဂဏန်းသည် " + formatNumber(lowPossible) + " နဲ့ " + formatNumber(highPossible) + " ကြားမှာ ရှိပါတယ်။";
+    } else {
+        lowPossible = mid + 1;
+        fb.innerText = "💡 ဂဏန်းသည် " + formatNumber(lowPossible) + " နဲ့ " + formatNumber(highPossible) + " ကြားမှာ ရှိပါတယ်။";
+    }
+    fb.style.color = "#9b59b6";
+
+    updateGameHUD();
+    const btn = document.getElementById('hintBtn');
+    btn.innerHTML = '💡 အအကြံပြု (x' + hintsLeft + ')';
+    if (hintsLeft <= 0) {
+        btn.disabled = true;
+        btn.style.opacity = '0.5';
+    }
+}
+
+// A1: Game Over ဖြစ်ချိန်
+function handleGameOver() {
+    document.getElementById('gameOverMessage').innerText =
+        "မှန်တဲ့ ဂဏန်းက " + formatNumber(targetNumber) + " ဖြစ်ခဲ့ပါတယ်။ အကြိမ်ရေ အကုန်သွားပါပြီ 😅 နောက်တစ်ခါ ထပ်ကြိုးစားပါဦး 💪";
+    document.getElementById('gameOverModal').classList.add('active');
 }
 
 // Feedback စာသားကို တုန်ခါစေရန် (Animation)
@@ -214,6 +341,7 @@ function updateStatsUI() {
     document.getElementById('totalGames').innerText = formatNumber(stats.totalGames);
     document.getElementById('bestScore').innerText = stats.bestScore === null ? "-" : formatNumber(stats.bestScore);
     document.getElementById('currentAttempts').innerText = formatNumber(attempts);
+    document.getElementById('totalScore').innerText = formatNumber(stats.totalScore);
 }
 
 // Setup section မှာ inline error ပြခြင်း
@@ -233,6 +361,7 @@ function hideSetupError() {
 // နောက်တစ်ခါ ထပ်ဆော့ရန် (Modal ပိတ်ပြီး Range ပြန်ရွေးခိုင်းမည်)
 function playAgain() {
     document.getElementById('winModal').classList.remove('active');
+    document.getElementById('gameOverModal').classList.remove('active');
     resetSetup();
 }
 
