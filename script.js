@@ -15,13 +15,47 @@ updateStatsUI();
 
 // 1. ဂိမ်းစတင်ခြင်း (Range သတ်မှတ်ခြင်း)
 function startGame() {
-    minRange = parseInt(document.getElementById('minVal').value);
-    maxRange = parseInt(document.getElementById('maxVal').value);
+    const minVal = document.getElementById('minVal').value;
+    const maxVal = document.getElementById('maxVal').value;
 
-    if (isNaN(minRange) || isNaN(maxRange) || minRange >= maxRange) {
-        alert("ကျေးဇူးပြု၍ မှန်ကန်သော ဂဏန်းများကို ထည့်ပါ။ (အစ ဂဏန်းသည် အဆုံးဂဏန်းထက် ငယ်ရပါမည်)");
+    const minParsed = Number(minVal);
+    const maxParsed = Number(maxVal);
+
+    // ရှည်ထည့်ထားရင် နံပါတ်မဟုတ်ရင်
+    if (minVal.trim() === '' || maxVal.trim() === '' || !Number.isFinite(minParsed) || !Number.isFinite(maxParsed)) {
+        showSetupError("ကျေးဇူးပြုပါ၍ မှန်ကန်သော ဂဏန်းများကို ထည့်ပါ။");
         return;
     }
+
+    // ကိန်းပြည် (Whole number) / Integer သာ လက်ခံသည်
+    if (!Number.isInteger(minParsed) || !Number.isInteger(maxParsed)) {
+        showSetupError("ကိန်းပြည်သာ ထည့်ပါ။ (ဥပမာ -1, 1.5, 2.7 စသည့် ကိန်းတွေ မထည့်ရ)");
+        return;
+    }
+
+    // အစဂဏန်းသည် 1 အောက် ငယ်လို့မရ
+    if (minParsed < 1) {
+        showSetupError("အစဂဏန်းသည် 1 ထက်ငယ်လို့မရပါ။ (အနည်းဆုံး 1 ထားပါ)");
+        return;
+    }
+
+    // အဆုံးဂဏန်းသည် 50 အောက် ငယ်လို့မရ
+    if (maxParsed < 50) {
+        showSetupError("အဆုံးဂဏန်းသည် 50 ထက်ငယ်လို့မရပါ။ (အနည်းဆုံး 50 ထားပါ)");
+        return;
+    }
+
+    // အစသည် အဆုံးထက် ငယ်ရမည်
+    if (minParsed >= maxParsed) {
+        showSetupError("အစဂဏန်းသည် အဆုံးဂဏန်းထက် ငယ်ရပါမည်။");
+        return;
+    }
+
+    // Error ရှိရင် ဖျောက်ပြီး ဂိမ်းစတင်မည်
+    hideSetupError();
+
+    minRange = minParsed;
+    maxRange = maxParsed;
 
     // Random ဂဏန်းထုတ်ခြင်း
     targetNumber = Math.floor(Math.random() * (maxRange - minRange + 1)) + minRange;
@@ -48,15 +82,31 @@ function startGame() {
 // 2. ခန့်မှန်းခြင်း စစ်ဆေးခြင်း
 function checkGuess() {
     const guessInput = document.getElementById('guessVal');
-    const guess = parseInt(guessInput.value);
+    const guessInputValue = guessInput.value;
+    const guess = Number(guessInputValue);
     const feedbackText = document.getElementById('feedbackText');
 
-    if (isNaN(guess)) {
+    if (guessInputValue.trim() === '' || !Number.isFinite(guess)) {
         feedbackText.innerText = "ဂဏန်းတစ်ခုခု ရိုက်ထည့်ပါဦး 🙄";
         shakeFeedback();
         return;
     }
 
+    // ကိန်းပြည် (Integer) သာ လက်ခံသည် - decimal/fraction မလက်ခံပါ
+    if (!Number.isInteger(guess)) {
+        feedbackText.innerText = "ကိန်းပြည်သာ ထည့်ပါဦး 🙅 (-1, 1.5 လို ကိန်းတွေ မထည့်ရ)";
+        feedbackText.style.color = "#d63031";
+        shakeFeedback();
+        return;
+    }
+
+// ဂဏန်းသည် သတ်မှတ်ထားသော Range ထဲမှာသာ ရှိရမည်
+    if (guess < minRange || guess > maxRange) {
+        feedbackText.innerText = "ဂဏန်းက " + minRange + " ကနေ " + maxRange + " ကြားမှာသာ ထည့်လို့ရပါတယ် 🙅";
+        feedbackText.style.color = "#d63031";
+        shakeFeedback();
+        return;
+    }
     attempts++;
     updateStatsUI();
 
@@ -150,6 +200,20 @@ function updateStatsUI() {
     document.getElementById('totalGames').innerText = stats.totalGames;
     document.getElementById('bestScore').innerText = stats.bestScore === null ? "-" : stats.bestScore;
     document.getElementById('currentAttempts').innerText = attempts;
+}
+
+// Setup section မှာ inline error ပြခြင်း
+function showSetupError(message) {
+    const el = document.getElementById('setupError');
+    el.innerHTML = '⚠️ ' + message;
+    el.classList.add('show');
+}
+
+// Setup section မှာ inline error ဖျောက်ခြင်း
+function hideSetupError() {
+    const el = document.getElementById('setupError');
+    el.innerHTML = '';
+    el.classList.remove('show');
 }
 
 // နောက်တစ်ခါ ထပ်ဆော့ရန် (Modal ပိတ်ပြီး Range ပြန်ရွေးခိုင်းမည်)

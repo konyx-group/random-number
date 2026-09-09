@@ -74,6 +74,24 @@ h1 {
     gap: 12px;
 }
 
+/* Inline Error Message */
+.inline-error {
+    display: none;
+    background: #fdecea;
+    color: #c0392b;
+    border: 1px solid #f5b7b1;
+    border-radius: 10px;
+    padding: 12px 14px;
+    font-size: 14px;
+    font-weight: bold;
+    margin-top: 12px;
+    text-align: left;
+}
+
+.inline-error.show {
+    display: block;
+}
+
 input[type="number"] {
     width: 100%;
     padding: 18px;

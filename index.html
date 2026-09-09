@@ -37,14 +37,15 @@
             <div class="range-inputs">
                 <div class="input-group" style="flex: 1;">
                     <label>အစ (Min)</label>
-                    <input type="number" id="minVal" value="1">
+                    <input type="number" id="minVal" value="1" min="1" step="1">
                 </div>
                 <div class="input-group" style="flex: 1;">
                     <label>အဆုံး (Max)</label>
-                    <input type="number" id="maxVal" value="100">
+                    <input type="number" id="maxVal" value="100" min="50" step="1">
                 </div>
             </div>
-            <button class="btn" onclick="startGame()">ဂိမ်းစမည် 🚀</button>
+            <button type="button" class="btn" onclick="startGame()">ဂိမ်းစမည် 🚀</button>
+            <div class="inline-error" id="setupError"></div>
         </div>
 
         <!-- Phase 2: Gameplay -->
@@ -53,7 +54,7 @@
                 <span id="displayMin">1</span> မှ <span id="displayMax">100</span> ကြား ဂဏန်းတစ်ခုကို ခန့်မှန်းပါ!
             </p>
             <div class="input-group">
-                <input type="number" id="guessVal" placeholder="ဂဏန်းရိုက်ထည့်ပါ..." onkeypress="handleEnter(event)">
+                <input type="number" id="guessVal" placeholder="ဂဏန်းရိုက်ထည့်ပါ..." step="1" onkeypress="handleEnter(event)">
             </div>
             <button class="btn" onclick="checkGuess()">ခန့်မှန်းမည် 🎯</button>
             <div class="feedback" id="feedbackText"></div>
