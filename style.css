@@ -92,6 +92,50 @@ h1 {
     display: block;
 }
 
+/* Quick Level Select */
+.quick-levels {
+    margin-top: 20px;
+    text-align: center;
+}
+
+.quick-title {
+    font-size: 13px;
+    color: #2d3436;
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+
+.quick-grid {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 8px;
+}
+
+.quick-btn {
+    background: #ffeaa7;
+    color: #6d4c00;
+    border: 2px solid #fdcb6e;
+    padding: 10px 14px;
+    font-size: 13px;
+    font-weight: bold;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: 0.2s;
+    line-height: 1.2;
+}
+
+.quick-btn small {
+    display: block;
+    font-size: 11px;
+    opacity: 0.85;
+}
+
+.quick-btn:hover {
+    background: #fddc5a;
+    transform: translateY(-2px);
+}
+
 input[type="number"] {
     width: 100%;
     padding: 18px;

@@ -4,6 +4,12 @@ let attempts = 0;
 let minRange = 1;
 let maxRange = 100;
 
+// ဂဏန်းကို ၃ လုံးတစ်ချက် ကော်မာ (,) ခွဲပြီး ပြသရန်
+// ဉပမာ: 1000 -> 1,000, 1000000 -> 1,000,000
+function formatNumber(value) {
+    return Number(value).toLocaleString('en-US');
+}
+
 // ပွဲတစ်ပွဲမှာ ခန့်မှန်းလိုက်တဲ့ ဂဏန်းတွေ သိမ်းထားမယ်
 let guessHistory = [];
 
@@ -12,6 +18,14 @@ let stats = JSON.parse(localStorage.getItem('guessGameStats')) || { totalGames: 
 
 // အစပိုင်းတွင် Stats ပြသရန်
 updateStatsUI();
+
+// 1.1 အအဆင့်အတိုင်း ချက်ချင်း ဂိမ်းစခြင်း
+// ဉပမာ: startQuickGame(100) -> 1 မှ 100 ကြား
+function startQuickGame(maxValue) {
+    document.getElementById('minVal').value = 1;
+    document.getElementById('maxVal').value = maxValue;
+    startGame(); // setup logic အားလုံးကို ပြန်သုံးသည်
+}
 
 // 1. ဂိမ်းစတင်ခြင်း (Range သတ်မှတ်ခြင်း)
 function startGame() {
@@ -65,8 +79,8 @@ function startGame() {
     renderGuessHistory();
 
     // UI ပြောင်းခြင်း
-    document.getElementById('displayMin').innerText = minRange;
-    document.getElementById('displayMax').innerText = maxRange;
+    document.getElementById('displayMin').innerText = formatNumber(minRange);
+    document.getElementById('displayMax').innerText = formatNumber(maxRange);
     
     document.getElementById('setupSection').style.display = 'none';
     document.getElementById('gameSection').style.display = 'block';
@@ -102,7 +116,7 @@ function checkGuess() {
 
 // ဂဏန်းသည် သတ်မှတ်ထားသော Range ထဲမှာသာ ရှိရမည်
     if (guess < minRange || guess > maxRange) {
-        feedbackText.innerText = "ဂဏန်းက " + minRange + " ကနေ " + maxRange + " ကြားမှာသာ ထည့်လို့ရပါတယ် 🙅";
+        feedbackText.innerText = "ဂဏန်းက " + formatNumber(minRange) + " ကနေ " + formatNumber(maxRange) + " ကြားမှာသာ ထည့်လို့ရပါတယ် 🙅";
         feedbackText.style.color = "#d63031";
         shakeFeedback();
         return;
@@ -150,7 +164,7 @@ function handleWin() {
     updateStatsUI();
 
     // Modal ပြခြင်း
-    document.getElementById('winMessage').innerHTML = `<strong>${attempts}</strong> ကြိမ်တည်းနဲ့ မှန်အောင် ခန့်မှန်းနိုင်ခဲ့ပါတယ်။ တော်လိုက်တာ 😘`;
+    document.getElementById('winMessage').innerHTML = `<strong>${formatNumber(attempts)}</strong> ကြိမ်တည်းနဲ့ မှန်အောင် ခန့်မှန်းနိုင်ခဲ့ပါတယ်။ တော်လိုက်တာ 😘`;
     document.getElementById('winModal').classList.add('active');
 
     // Confetti ပန်းပွင့်များ
@@ -184,7 +198,7 @@ function renderGuessHistory() {
     guessHistory.forEach(function (item, index) {
         const el = document.createElement('span');
         el.className = 'history-item ' + item.cls;
-        el.textContent = (index + 1) + '. ' + item.value;
+        el.textContent = (index + 1) + '. ' + formatNumber(item.value);
         list.appendChild(el);
     });
 
@@ -197,9 +211,9 @@ function renderGuessHistory() {
 
 // Stats UI အမြဲတမ်း Update လုပ်ပေးရန်
 function updateStatsUI() {
-    document.getElementById('totalGames').innerText = stats.totalGames;
-    document.getElementById('bestScore').innerText = stats.bestScore === null ? "-" : stats.bestScore;
-    document.getElementById('currentAttempts').innerText = attempts;
+    document.getElementById('totalGames').innerText = formatNumber(stats.totalGames);
+    document.getElementById('bestScore').innerText = stats.bestScore === null ? "-" : formatNumber(stats.bestScore);
+    document.getElementById('currentAttempts').innerText = formatNumber(attempts);
 }
 
 // Setup section မှာ inline error ပြခြင်း
